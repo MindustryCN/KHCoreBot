@@ -1,0 +1,7 @@
+prefs.properties
+.gradle
+build
+.idea
+logs
+cache
+gradle

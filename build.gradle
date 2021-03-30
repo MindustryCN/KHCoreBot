@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+project.ext.mainClassName = "space.shugen.KHCoreBot.KHCoreBot"
+sourceCompatibility = targetCompatibility = 14
+version = '1.0'
+
+sourceSets.main.java.srcDirs = ["src/"]
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url 'https://jitpack.io' }
+        jcenter()
+    }
+}
+
+ext {
+    mindustryVersion = 'v126.1'
+}
+
+task run(dependsOn: classes, type: JavaExec) {
+    main = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+}
+
+task dist(type: Jar) {
+    from files(sourceSets.main.output.classesDirs)
+    from files(sourceSets.main.output.resourcesDir)
+    from { configurations.runtimeClasspath.collect { it.isDirectory() || !it.name.endsWithAny(".zip", ".jar") ? it : zipTree(it) } }
+
+    archiveFileName = "KHCoreBot.jar"
+
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+}
+
+dependencies {
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.0"))
+
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
+    compile "org.jsoup:jsoup:1.7.2"
+    compile 'com.alibaba:fastjson:1.2.73'
+    compile "org.java-websocket:Java-WebSocket:1.5.1"
+    compile "com.github.Anuken.Arc:arc-core:$mindustryVersion"
+    compile "com.github.Anuken.Mindustry:core:$mindustryVersion"
+}
